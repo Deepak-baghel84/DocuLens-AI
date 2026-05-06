@@ -2,6 +2,8 @@ from pydantic import BaseModel, RootModel
 from typing import List, Union
 from enum import Enum
 
+# it is for the validation of prompts. 
+
 class Metadata(BaseModel):
     Summary: List[str]
     Title: str
