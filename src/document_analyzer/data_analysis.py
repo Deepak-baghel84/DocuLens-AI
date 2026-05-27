@@ -24,7 +24,7 @@ class  DocumentAnalyzer:
             raise CustomException(e, sys)
         
     def analyze_document(self, document_text):
-        """Method to analyze the document text and return structured data."""
+        """Method to analyze the document text and then return structured data."""
 
         log.info("Starting document analysis...")
         try:
