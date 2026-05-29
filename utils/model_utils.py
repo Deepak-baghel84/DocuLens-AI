@@ -6,7 +6,7 @@ from utils.config_util import load_config
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from logger import GLOBAL_LOGGER as log
-from exception.custom_exception import DocumentPortalException
+from exception.custom_exception import CustomException
 
 
 class ApiKeyManager:
@@ -38,7 +38,7 @@ class ApiKeyManager:
         missing = [k for k in self.REQUIRED_KEYS if not self.api_keys.get(k)]
         if missing:
             log.error("Missing required API keys", missing_keys=missing)
-            raise DocumentPortalException("Missing API keys", sys)
+            raise CustomException("Missing API keys", sys)
 
         log.info("API keys loaded", keys={k: v[:6] + "..." for k, v in self.api_keys.items()})
 
@@ -71,13 +71,13 @@ class ModelLoader:
         Load and return embedding model from Google Generative AI.
         """
         try:
-            model_name = self.config["embedding_model"]["model_name"]
+            model_name = self.config["embedding_model"]["model"]
             log.info("Loading embedding model", model=model_name)
             return GoogleGenerativeAIEmbeddings(model=model_name,
                                                 google_api_key=self.api_key_mgr.get("GOOGLE_API_KEY")) #type: ignore
         except Exception as e:
             log.error("Error loading embedding model", error=str(e))
-            raise DocumentPortalException("Failed to load embedding model", sys)
+            raise CustomException("Failed to load embedding model", sys)
 
     def load_llm(self):
         """
