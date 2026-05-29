@@ -1,109 +1,142 @@
 import os
 import sys
+import json
 from dotenv import load_dotenv
-from exception.custom_exception import CustomException
 from utils.config_util import load_config
-
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from logger import GLOBAL_LOGGER as log
+from exception.custom_exception import DocumentPortalException
 
 
+class ApiKeyManager:
+    REQUIRED_KEYS = ["GROQ_API_KEY", "GOOGLE_API_KEY"]
+
+    def __init__(self):
+        self.api_keys = {}
+        raw = os.getenv("API_KEYS")
+
+        if raw:
+            try:
+                parsed = json.loads(raw)
+                if not isinstance(parsed, dict):
+                    raise ValueError("API_KEYS is not a valid JSON object")
+                self.api_keys = parsed
+                log.info("Loaded API_KEYS from ECS secret")
+            except Exception as e:
+                log.warning("Failed to parse API_KEYS as JSON", error=str(e))
+
+        # Fallback to individual env vars
+        for key in self.REQUIRED_KEYS:
+            if not self.api_keys.get(key):
+                env_val = os.getenv(key)
+                if env_val:
+                    self.api_keys[key] = env_val
+                    log.info(f"Loaded {key} from individual env var")
+
+        # Final check
+        missing = [k for k in self.REQUIRED_KEYS if not self.api_keys.get(k)]
+        if missing:
+            log.error("Missing required API keys", missing_keys=missing)
+            raise DocumentPortalException("Missing API keys", sys)
+
+        log.info("API keys loaded", keys={k: v[:6] + "..." for k, v in self.api_keys.items()})
 
 
-
+    def get(self, key: str) -> str:
+        val = self.api_keys.get(key)
+        if not val:
+            raise KeyError(f"API key for {key} is missing")
+        return val
 
 
 class ModelLoader:
-    """Class to load and manage models for embeddings and language processing.  
-    It initializes the models based on configuration settings and provides methods to validate the environment."""
+    """
+    Loads embedding models and LLMs based on config and environment.
+    """
+
     def __init__(self):
-        try:
+        if os.getenv("ENV", "local").lower() != "production":
             load_dotenv()
-            self.config = load_config()
-            self._validate_env()
-           
-        except Exception as e:
-            log.error(f"Error in ModelLoader initialization: {e}")
-            raise CustomException(e, sys)
-        log.info("ModelLoader initialized successfully.")
+            log.info("Running in LOCAL mode: .env loaded")
+        else:
+            log.info("Running in PRODUCTION mode")
 
+        self.api_key_mgr = ApiKeyManager()
+        self.config = load_config()
+        log.info("YAML config loaded", config_keys=list(self.config.keys()))
 
-    def _validate_env(self):
-        models = ["GROQ_API_KEY", "GOOGLE_API_KEY"]
-        models_keys = {model:os.getenv(model) for model in models}
-        for model,key in models_keys.items():
-            if key is None:
-                log.error(f"Environment variable {model} is not set or provide api keys.")
-                raise CustomException(f"Environment variable {model} is not set or provide api keys.", sys)
-        
-
-    def load_embedding(self):
-        """Loads the embedding model based on the configuration settings."""
+    def load_embeddings(self):
+        """
+        Load and return embedding model from Google Generative AI.
+        """
         try:
-          model_name = self.config.get("embedding_model", "google")
-          if not model_name:
-                raise CustomException("Embedding model configuration is missing.", sys)
-          log.info(f"Loading embedding model: {model_name}")
-          if model_name.get('provider') == "google":
-              return GoogleGenerativeAIEmbeddings(
-                  model=model_name.get("model"),
-                  max_retries=3,
-                  max_tokens=model_name.get("max_tokens",4096)
-              )
-          elif model_name.get('provider') == "groq":
-              return ChatGroq(
-                  model=self.config.get["groq_embedding_model"],
-                  max_retries=3,
-                  max_tokens=self.config["max_tokens"]
-              )
-          else:
-              raise CustomException(f"Unsupported embedding model: {self.config['embedding_model']}", sys)
+            model_name = self.config["embedding_model"]["model_name"]
+            log.info("Loading embedding model", model=model_name)
+            return GoogleGenerativeAIEmbeddings(model=model_name,
+                                                google_api_key=self.api_key_mgr.get("GOOGLE_API_KEY")) #type: ignore
         except Exception as e:
-            log.error(f"Error loading embedding model: {e}")
-            raise CustomException(e, sys)
-        log.info(f"Embedding model {model_name} loaded successfully.")
+            log.error("Error loading embedding model", error=str(e))
+            raise DocumentPortalException("Failed to load embedding model", sys)
 
     def load_llm(self):
-        """Loads the language model based on the configuration settings."""
-
+        """
+        Load and return the configured LLM model.
+        """
         llm_block = self.config["llm"]
-        provider_ = os.getenv("LLM_PROVIDER", "google") 
-        provider = llm_block.get(provider_,"google")
-        if provider_ not in llm_block:
-            log.error(f"LLM provider {provider} not found in configuration.")
-            raise CustomException(f"LLM provider {provider} not found in configuration.", sys)
-        
-        
-        provider_name = provider.get("provider")
-        model_name = provider.get("model_name")
-        temperature = provider.get("temperature", 0.2)
-        max_tokens = provider.get("max_output_tokens", 2048)
+        provider_key = os.getenv("LLM_PROVIDER", "google")
 
-        
-        log.info(f"Loading LLM model: {model_name}")
-        if provider_name == "google":
+        if provider_key not in llm_block:
+            log.error("LLM provider not found in config", provider=provider_key)
+            raise ValueError(f"LLM provider '{provider_key}' not found in config")
+
+        llm_config = llm_block[provider_key]
+        provider = llm_config.get("provider")
+        model_name = llm_config.get("model_name")
+        temperature = llm_config.get("temperature", 0.2)
+        max_tokens = llm_config.get("max_output_tokens", 2048)
+
+        log.info("Loading LLM", provider=provider, model=model_name)
+
+        if provider == "google":
             return ChatGoogleGenerativeAI(
                 model=model_name,
-                max_retries=3,
-                max_tokens= max_tokens,
+                google_api_key=self.api_key_mgr.get("GOOGLE_API_KEY"),
                 temperature=temperature,
-                )
-        elif provider_name == "groq":
+                max_output_tokens=max_tokens
+            )
+
+        elif provider == "groq":
             return ChatGroq(
                 model=model_name,
-                max_retries=3,
-                max_tokens= max_tokens,
+                api_key=self.api_key_mgr.get("GROQ_API_KEY"), #type: ignore
                 temperature=temperature,
-                )
+            )
+
+        # elif provider == "openai":
+        #     return ChatOpenAI(
+        #         model=model_name,
+        #         api_key=self.api_key_mgr.get("OPENAI_API_KEY"),
+        #         temperature=temperature,
+        #         max_tokens=max_tokens
+        #     )
+
         else:
-            log.info(f"LLM model {model_name} loaded successfully.")
-            raise CustomException(f"Unsupported LLM model: {self.config['llm_model']}", sys)
-            
-     
+            log.error("Unsupported LLM provider", provider=provider)
+            raise ValueError(f"Unsupported LLM provider: {provider}")
 
 
-#if __name__ == "__main__":
- #   loader = ModelLoader()
-  #  embed = loader.load_embedding()
+if __name__ == "__main__":
+    loader = ModelLoader()
+
+    # Test Embedding
+    embeddings = loader.load_embeddings()
+    print(f"Embedding Model Loaded: {embeddings}")
+    result = embeddings.embed_query("Hello, how are you?")
+    print(f"Embedding Result: {result}")
+
+    # Test LLM
+    llm = loader.load_llm()
+    print(f"LLM Loaded: {llm}")
+    result = llm.invoke("Hello, how are you?")
+    print(f"LLM Result: {result.content}")
