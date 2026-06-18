@@ -26,17 +26,22 @@ class ConversationalRAG:
         try:
 
             self.session_id = session_id or "document_chat_session"
-            self.retriver = retriver
-            self.parser = StrOutputParser()
+            
+            #self.parser = StrOutputParser()
             
             self.model = ModelLoader()
             self.llm = self.model.load_llm()
             self.embeddings = self.model.load_embeddings()
             self.qa_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXT_QA.value)
             self.rewriter_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXTUALIZE_QUESTION.value)
+            
+            self.retriver = retriver
 
-            log.info("DocumentRetriever successfully initialized")
-            self._build_lcel_chain()
+            self.chain = None
+            if self.retriever is not None:
+                self._build_lcel_chain()
+            log.info("Document Retriever successfully initialized")
+            
         except Exception as e:
             log.error("Error in initialization DocumentRetriever")
             raise CustomException(str(e), sys)
