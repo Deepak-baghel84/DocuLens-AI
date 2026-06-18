@@ -17,28 +17,29 @@ load_dotenv()
 
 
 class ConversationalRAG:
-    def __init__(self, retriver, session_id: str = None):
+    def __init__(self, retriver=None, session_id: Optional[str]=None):
         """
         Initializes the DocumentRetriever with the path for the FAISS index.
         :param faiss_index_path: Directory where FAISS index is stored.
         :param session_id: Unique identifier for the session, defaults to current timestamp.
         """
         try:
-            
+
+            self.session_id = session_id or "document_chat_session"
             self.retriver = retriver
             self.parser = StrOutputParser()
-            self.session_id = session_id or "document_chat_session"
+            
             self.model = ModelLoader()
             self.llm = self.model.load_llm()
-            self.embeddings = self.model.load_embedding()
+            self.embeddings = self.model.load_embeddings()
             self.qa_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXT_QA.value)
             self.rewriter_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXTUALIZE_QUESTION.value)
 
             log.info("DocumentRetriever successfully initialized")
-            self._built_lcel_chain()
+            self._build_lcel_chain()
         except Exception as e:
             log.error("Error in initialization DocumentRetriever")
-            raise (e, sys)
+            raise CustomException(str(e), sys)
         
     def load_retriever_from_faiss(
         self,
@@ -141,7 +142,7 @@ class ConversationalRAG:
         
 
 
-    def _built_lcel_chain(self):
+    def _build_lcel_chain(self):
         try:
             # 1) Rewrite user question with chat history context
             self.question_rewritter = {"user_input":itemgetter("user_input"),"chat_history":itemgetter("chat_history")} | self.rewriter_prompt | self.llm | self.parser

@@ -84,7 +84,7 @@ class ModelLoader:
         Load and return the configured LLM model.
         """
         llm_block = self.config["llm"]
-        provider_key = os.getenv("LLM_PROVIDER", "google")
+        provider_key = os.getenv("LLM_PROVIDER", "groq").lower()
 
         if provider_key not in llm_block:
             log.error("LLM provider not found in config", provider=provider_key)
@@ -92,7 +92,7 @@ class ModelLoader:
 
         llm_config = llm_block[provider_key]
         provider = llm_config.get("provider")
-        model_name = llm_config.get("model_name")
+        model_name = llm_config.get("model_name") or llm_config.get("model")
         temperature = llm_config.get("temperature", 0.2)
         max_tokens = llm_config.get("max_output_tokens", 2048)
 
@@ -112,31 +112,24 @@ class ModelLoader:
                 api_key=self.api_key_mgr.get("GROQ_API_KEY"), #type: ignore
                 temperature=temperature,
             )
-
-        # elif provider == "openai":
-        #     return ChatOpenAI(
-        #         model=model_name,
-        #         api_key=self.api_key_mgr.get("OPENAI_API_KEY"),
-        #         temperature=temperature,
-        #         max_tokens=max_tokens
-        #     )
-
         else:
             log.error("Unsupported LLM provider", provider=provider)
             raise ValueError(f"Unsupported LLM provider: {provider}")
+        
+        log.info("LLM loaded successfully", provider=provider, model=model_name)
 
 
-if __name__ == "__main__":
-    loader = ModelLoader()
+# if __name__ == "__main__":
+#     loader = ModelLoader()
 
-    # Test Embedding
-    embeddings = loader.load_embeddings()
-    print(f"Embedding Model Loaded: {embeddings}")
-    result = embeddings.embed_query("Hello, how are you?")
-    print(f"Embedding Result: {result}")
+#     # Test Embedding
+#     embeddings = loader.load_embeddings()
+#     print(f"Embedding Model Loaded: {embeddings}")
+#     result = embeddings.embed_query("Hello, how are you?")
+#     print(f"Embedding Result: {result}")
 
-    # Test LLM
-    llm = loader.load_llm()
-    print(f"LLM Loaded: {llm}")
-    result = llm.invoke("Hello, how are you?")
-    print(f"LLM Result: {result.content}")
+#     # Test LLM
+#     llm = loader.load_llm()
+#     print(f"LLM Loaded: {llm}")
+#     result = llm.invoke("Hello, how are you?")
+#     print(f"LLM Result: {result.content}")

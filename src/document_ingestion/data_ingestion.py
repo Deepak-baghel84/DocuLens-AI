@@ -18,10 +18,13 @@ class FaissManager:
     '''Class to manage FAISS index operations.
        '''
     def __init__(self,index_dir:Path,model_loader:Optional[ModelLoader]=None):
+        log.info(f"Initializing FaissManager with index directory: {index_dir}")
+        print(f"Initializing FaissManager with index directory--")
         self.index_dir = Path(index_dir)
-        index_dir.mkdir(parents=True, exist_ok=True)
+        self.index_dir.mkdir(parents=True, exist_ok=True)
+        
         self.model_loader = model_loader or ModelLoader()
-        self.embed = self.model_loader.load_embedding()
+        self.embed = self.model_loader.load_embeddings()
 
         self.meta_path = self.index_dir / "metadata.json"
         self._meta:Dict[str,Any] = {"rows":{}}
@@ -31,6 +34,8 @@ class FaissManager:
             except Exception:
                 self._meta = {"rows": {}} # init the empty one if dones not exists
         self.vs: Optional[FAISS] = None
+
+        log.info("FaissManager initialized", index_dir=str(self.index_dir), meta_loaded=bool(self._meta["rows"]))
         
     def _exists(self)-> bool:
         return (self.index_dir / "index.faiss").exists() and (self.index_dir / "index.pkl").exists()

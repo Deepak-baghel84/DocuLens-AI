@@ -24,7 +24,7 @@ embedding_model:
 llm:
   groq:
     provider: "groq"
-    model: "deepseek-r1-distill-llama-70b"
+    model_name: "llama-3.3-70b-versatile"
     temperature: 0.2
     max_output_tokens: 2048
     #context_window: 8192

@@ -8,7 +8,7 @@ from src.document_ingestion.data_ingestion import ChatIngestor
 
 def test_doc_chat():
     try:
-        file_paths = ["Data//Resume.pdf","Data//Sample.pdf","Data//Deepak_Baghel_Resume.pdf"]
+        file_paths = ["Data//Resume.pdf","Data//sample.pdf","Data//Deepak_Baghel_Resume.pdf"]
        
         ingestor = ChatIngestor(temp_base="Data//multidoc_archive", faiss_base = "faiss_index",use_session_dirs = True,session_id= None)
         uploaded_files = []
@@ -26,7 +26,7 @@ def test_doc_chat():
         answer = doc_retriver.Invoke(user_query="What is the documents about?")
         print(answer)
     except Exception as e:
-       raise CustomException(e,sys)
+       raise CustomException(str(e),sys)
     
 if __name__ == "__main__":
     test_doc_chat()
