@@ -17,7 +17,7 @@ load_dotenv()
 
 
 class ConversationalRAG:
-    def __init__(self, retriver=None, session_id: Optional[str]=None):
+    def __init__(self, retriever=None, session_id: Optional[str]=None, retriver=None):
         """
         Initializes the DocumentRetriever with the path for the FAISS index.
         :param faiss_index_path: Directory where FAISS index is stored.
@@ -35,7 +35,7 @@ class ConversationalRAG:
             self.qa_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXT_QA.value)
             self.rewriter_prompt = PROMPT_REGISTRY.get(PromptType.CONTEXTUALIZE_QUESTION.value)
             
-            self.retriver = retriver
+            self.retriever = retriever or retriver
 
             self.chain = None
             if self.retriever is not None:
@@ -89,6 +89,7 @@ class ConversationalRAG:
         except Exception as e:
             log.error("Failed to load retriever from FAISS", error=str(e))
             raise CustomException("Loading error in ConversationalRAG", sys)
+
     def Invoke(self,user_query:str,chat_history:Optional[List[BaseMessage]]=None):
         try:
             if self.main_chain is None:
@@ -97,34 +98,19 @@ class ConversationalRAG:
             self.chat_history = chat_history or []
             self.payload = {"user_input":user_query, "chat_history":self.chat_history}
 
-            if self.retriver is None:
-                #retriver = self._create_retrivel(self.documents)
+            if self.retriever is None:
                 log.error("Retriever is not initialized")
                 raise CustomException("Retriever is not initialized", sys)
-            rewritten = self.question_rewritter.invoke(self.payload)
-            log.info(f"Rewritten question: {rewritten}")
-            if not rewritten or not rewritten.strip():
-               rewritten = user_query   # fallback: use original
 
-            docs = self.retriver.invoke(rewritten) if self.retriver else []
-            log.info(f"Retrieved {len(docs)} documents")
-            if docs:
-                context = self._format_doc(docs)
-            else:
-                context = "No relevant context available."
-
-            final_payload = {
-             "context": context,
-             "user_input": user_query,
-            "chat_history": chat_history or []
-           }
-
-            response = self.main_chain.invoke(final_payload)
+            response = self.main_chain.invoke(self.payload)
             log.info("Successfully generated answer from DocumentRetriever")
             return response
         except Exception as e:
             log.error("Error in invoking DocumentRetriever")
             raise CustomException(f"Error generating answer in invoke: {e}", sys)
+
+    def invoke(self, user_query: str, chat_history: Optional[List[BaseMessage]] = None):
+        return self.Invoke(user_query, chat_history)
 
      
     def _create_retrivel(self,documents):
@@ -147,17 +133,39 @@ class ConversationalRAG:
         
 
 
+    def _log_rewritten(self, question: str) -> str:
+        log.info(f"Rewritten question: {question}")
+        return question
+
+    def _log_docs(self, docs):
+        log.info(f"Retrieved {len(docs)} documents")
+        return docs
+
     def _build_lcel_chain(self):
         try:
             # 1) Rewrite user question with chat history context
-            self.question_rewritter = {"user_input":itemgetter("user_input"),"chat_history":itemgetter("chat_history")} | self.rewriter_prompt | self.llm | self.parser
-            log.info("Question rewriting chain successfully built")
+            if self.retriever is None:
+                raise CustomException("No retriever set before building chain", sys)
+            self.question_rewritter = (
+                {"user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
+                | self.rewriter_prompt
+                | self.llm
+                | StrOutputParser()
+                | self._log_rewritten
+            )
+            
+            retrieve_docs = self.question_rewritter | self.retriever | self._log_docs | self._format_doc
             
             # 2) Main chain that combines the rewritten question, retrieved documents, and chat history
-            self.main_chain = {"context": itemgetter("context"),"user_input":itemgetter("user_input"),"chat_history":itemgetter("chat_history")} | self.qa_prompt | self.llm | self.parser
-            log.info("Main lcel chain successfully built")
-        except:
-            log.error("Error building LCEL chain")
+            self.main_chain = (
+                {"context": retrieve_docs, "user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
+                | self.qa_prompt
+                | self.llm
+                | StrOutputParser()
+            )
+            log.info("LCEL chain successfully built")
+        except Exception as e:
+            log.error(f"Error building LCEL chain: {e}")
             raise CustomException("Error building LCEL chain", sys)
 
 
@@ -170,7 +178,6 @@ class ConversationalRAG:
         try:
             if not docs:
                 raise CustomException("No documents to format", sys)
-            log.info("Formatting retrieved documents")
             formatted_docs = "\n\n".join([doc.page_content for doc in docs])
             log.info("Documents successfully formatted")
             return formatted_docs
