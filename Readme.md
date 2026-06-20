@@ -7,20 +7,21 @@ The system combines semantic search, vector embeddings, and LLM reasoning to pro
 
 
 ## Features
-Upload and process PDF documents
-Intelligent document question-answering
-Context-aware conversational chat
-Retrieval-Augmented Generation (RAG) pipeline
-Semantic search using vector embeddings
-Multi-turn conversation support
-Chat history-aware query reformulation
-Source-grounded responses
-Fast inference using Groq-hosted LLMs
-Responsive web interface
-Cloud deployment on AWS ECS Fargate
+- Upload and process PDF documents
+- Intelligent document question-answering
+- Context-aware conversational chat
+- Retrieval-Augmented Generation (RAG) pipeline
+- Semantic search using vector embeddings
+- Multi-turn conversation support
+- Chat history-aware query reformulation
+- Source-grounded responses
+- Fast inference using Groq-hosted LLMs
+- Responsive web interface
+- Cloud deployment on AWS ECS Fargate
 
 
 ## Architecture
+'''text
 User Query
      │
      ▼
@@ -43,56 +44,57 @@ LLM (Groq / Llama)
      │
      ▼
 Generated Response
-
+'''
 
 ## Tech Stack
-Frontend
-Streamlit
-Backend
-Python
-LangChain
-LLM
-Groq API
-Llama Models
-Vector Database
-FAISS
-Document Processing
-PyPDF
-Recursive Character Text Splitter
-Deployment
-Docker
-AWS ECS
-AWS Fargate
-Amazon ECR
+- Frontend
+- Streamlit
+- Backend
+- Python
+- LangChain
+- LLM
+- Groq API
+- Llama Models
+- Vector Database
+- FAISS
+- Document Processing
+- PyPDF
+- Recursive Character Text Splitter
+- Deployment
+- Docker
+- AWS ECS
+- AWS Fargate
+- Amazon ECR
 
 
 ## How It Works
-1. Document Ingestion
+1. **Document Ingestion**
 
 The uploaded document is parsed and converted into raw text.
 
-2. Text Chunking
+2. **Text Chunking**
 
 The document is divided into manageable chunks while preserving context through chunk overlap.
 
-3. Embedding Generation
+3. **Embedding Generation**
 
 Each chunk is transformed into vector embeddings.
 
-4. Vector Storage
+4. **Vector Storage**
 
 Embeddings are stored in FAISS for efficient similarity search.
 
-5. Context Retrieval
+5. **Context Retrieval**
 
 When a user asks a question, the system retrieves the most relevant document chunks.
 
-6. Response Generation
+6. **Response Generation**
 
 The retrieved context is supplied to the LLM, which generates an answer grounded in the document content.
 
 
 ## Project Structure
+'''text
 Document-Portal/
 │
 ├── app.py
@@ -109,7 +111,7 @@ Document-Portal/
 ├── assets/
 ├── data/
 └── README.md
-
+'''
 
 ## Installation
 Clone Repository
@@ -120,7 +122,7 @@ python -m venv venv
 Activate Environment
 source venv/bin/activate
 
-## Windows:
+''' ## Windows:
 
 venv\Scripts\activate
 Install Dependencies
@@ -132,7 +134,7 @@ Create a .env file:
 GROQ_API_KEY=your_api_key
 Run Application
 streamlit run app.py
-
+'''
 
 ## AWS Deployment
 
@@ -163,14 +165,14 @@ Conversational AI Systems
 
 
 ### Future Improvements
-Document source citations
-Hybrid Search (Semantic + Keyword)
-Re-ranking for retrieval quality
-Multi-document chat
-User authentication
-Chat session persistence
-RAG evaluation using Ragas and LangSmith
-Support for Word, PPT, and Excel files
+- Document source citations
+- Hybrid Search (Semantic + Keyword)
+- Re-ranking for retrieval quality
+- Multi-document chat
+- User authentication
+- Chat session persistence
+- RAG evaluation using Ragas and LangSmith
+- Support for Word, PPT, and Excel files
 
 
 ### Results
@@ -179,10 +181,10 @@ Reduces manual document search effort.
 Generates context-aware responses grounded in source documents.
 Supports efficient knowledge extraction from large PDFs.
 
-
+---
 ### Author
 
-Deepak Baghel
+**Deepak Baghel**
 
 B.Tech CSE (AI & ML)
 
