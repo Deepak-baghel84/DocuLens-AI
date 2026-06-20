@@ -1,4 +1,4 @@
-📄 Document Portal - AI-Powered Document Intelligence System
+# 📄 Document Portal - AI-Powered Document Intelligence System
 Overview
 
 Document Portal is a Retrieval-Augmented Generation (RAG) application that enables users to upload documents and interact with them through natural language conversations. Instead of manually searching through lengthy documents, users can ask questions and receive context-aware answers generated using Large Language Models (LLMs).
@@ -6,7 +6,7 @@ Document Portal is a Retrieval-Augmented Generation (RAG) application that enabl
 The system combines semantic search, vector embeddings, and LLM reasoning to provide accurate responses based on document content while minimizing hallucinations
 
 
-Features
+## Features
 Upload and process PDF documents
 Intelligent document question-answering
 Context-aware conversational chat
@@ -20,7 +20,7 @@ Responsive web interface
 Cloud deployment on AWS ECS Fargate
 
 
-Architecture
+## Architecture
 User Query
      │
      ▼
@@ -45,7 +45,7 @@ LLM (Groq / Llama)
 Generated Response
 
 
-Tech Stack
+## Tech Stack
 Frontend
 Streamlit
 Backend
@@ -66,7 +66,7 @@ AWS Fargate
 Amazon ECR
 
 
-How It Works
+## How It Works
 1. Document Ingestion
 
 The uploaded document is parsed and converted into raw text.
@@ -92,7 +92,7 @@ When a user asks a question, the system retrieves the most relevant document chu
 The retrieved context is supplied to the LLM, which generates an answer grounded in the document content.
 
 
-Project Structure
+## Project Structure
 Document-Portal/
 │
 ├── app.py
@@ -111,7 +111,7 @@ Document-Portal/
 └── README.md
 
 
-Installation
+## Installation
 Clone Repository
 git clone <repository-url>
 cd document-portal
@@ -120,7 +120,7 @@ python -m venv venv
 Activate Environment
 source venv/bin/activate
 
-Windows:
+## Windows:
 
 venv\Scripts\activate
 Install Dependencies
@@ -134,7 +134,7 @@ Run Application
 streamlit run app.py
 
 
-AWS Deployment
+## AWS Deployment
 
 The application is containerized using Docker and deployed on AWS using:
 
@@ -143,7 +143,7 @@ Amazon ECS
 AWS Fargate
 Application Load Balancer (ALB)
 
-Deployment benefits:
+### Deployment benefits:
 
 Scalable infrastructure
 Serverless container management
@@ -151,7 +151,7 @@ High availability
 Simplified deployment workflow
 
 
-Key Learning Outcomes
+### Key Learning Outcomes
 Retrieval-Augmented Generation (RAG)
 Vector Databases and Semantic Search
 LangChain Framework
@@ -162,7 +162,7 @@ Docker Containerization
 Conversational AI Systems
 
 
-Future Improvements
+### Future Improvements
 Document source citations
 Hybrid Search (Semantic + Keyword)
 Re-ranking for retrieval quality
@@ -173,14 +173,14 @@ RAG evaluation using Ragas and LangSmith
 Support for Word, PPT, and Excel files
 
 
-Results
+### Results
 Enables natural language interaction with documents.
 Reduces manual document search effort.
 Generates context-aware responses grounded in source documents.
 Supports efficient knowledge extraction from large PDFs.
 
 
-Author
+### Author
 
 Deepak Baghel
 
