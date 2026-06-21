@@ -124,12 +124,16 @@ Document-Portal/
 ## Installation
 **Clone Repository**
 ```bash
-git clone <repository-url>
+git clone git@github.com:Deepak-baghel84/DocuLens-AI.git
 cd document-portal
-Create Virtual Environment
-python -m venv venv
-Activate Environment
-source venv/bin/activate
+```
+**Create Virtual Environment**
+```
+python -m venv myenv
+```
+**Activate Environment**
+```
+myenv\Scripts\activate
 ```
  ## Windows:
 ```
