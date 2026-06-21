@@ -21,7 +21,7 @@ The system combines semantic search, vector embeddings, and LLM reasoning to pro
 
 
 ## Architecture
-'''text
+```text
 User Query
      │
      ▼
@@ -44,7 +44,7 @@ LLM (Groq / Llama)
      │
      ▼
 Generated Response
-'''
+```
 
 ## Tech Stack
 - Frontend
@@ -94,7 +94,7 @@ The retrieved context is supplied to the LLM, which generates an answer grounded
 
 
 ## Project Structure
-'''text
+```text
 Document-Portal/
 │
 ├── app.py
@@ -111,30 +111,36 @@ Document-Portal/
 ├── assets/
 ├── data/
 └── README.md
-'''
+```
 
 ## Installation
-Clone Repository
+**Clone Repository**
+```bash
 git clone <repository-url>
 cd document-portal
 Create Virtual Environment
 python -m venv venv
 Activate Environment
 source venv/bin/activate
-
-''' ## Windows:
-
+```
+ ## Windows:
+```
 venv\Scripts\activate
-Install Dependencies
+```
+**Install Dependencies**
+```
 pip install -r requirements.txt
+```
 Configure Environment Variables
 
-Create a .env file:
-
+**Create a .env file**
+```
 GROQ_API_KEY=your_api_key
-Run Application
-streamlit run app.py
-'''
+```
+**Run Application**
+```
+uvicorn api.main:app --reload
+```
 
 ## AWS Deployment
 
