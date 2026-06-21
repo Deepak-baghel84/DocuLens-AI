@@ -97,18 +97,26 @@ The retrieved context is supplied to the LLM, which generates an answer grounded
 ```text
 Document-Portal/
 │
-├── app.py
-├── requirements.txt
+├── main.py
+├── .github/
+│     ├── aws.yaml
+│     ├── ci.yaml
+│     └──task_definition.json
 ├── Dockerfile
 ├── src/
-│   ├── document_loader.py
-│   ├── text_splitter.py
-│   ├── embeddings.py
-│   ├── vector_store.py
-│   ├── retriever.py
-│   └── rag_pipeline.py
+│   ├── document_analyzer
+│   ├── document_chat
+│   ├── document_compare
+│   └── document_ingestion
 │
-├── assets/
+├── utils
+│     ├── model_utils.py
+│     ├── config_util.py
+│     ├── file_io.py
+│     └── document_ops.py
+│    
+│── requirements.txt
+├── Tests/
 ├── data/
 └── README.md
 ```
