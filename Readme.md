@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![LangChain](https://img.shields.io/badge/LangChain-RAG-green)
+![AWS](https://img.shields.io/badge/AWS-ECS_Fargate-orange)
+
+
 # 📄 Document Portal - AI-Powered Document Intelligence System
 Overview
 
