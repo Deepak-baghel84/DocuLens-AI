@@ -24,4 +24,4 @@ requests==2.31.0
 pytest                    
 httpx
 # ruff
--e.
+-e .
