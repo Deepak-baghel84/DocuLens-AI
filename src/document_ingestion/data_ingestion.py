@@ -8,7 +8,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from utils.model_utils import ModelLoader
 from utils.document_ops import load_documents
 from langchain_community.vectorstores import FAISS
-from langchain.schema import Document
+from langchain_core.documents import Document
 import os
 from typing import Any, List, Optional, Iterable, Dict
 from pypdf import PdfReader
@@ -19,13 +19,13 @@ class FaissManager:
        '''
     def __init__(self,index_dir:Path,model_loader:Optional[ModelLoader]=None):
         log.info(f"Initializing FaissManager with index directory: {index_dir}")
-        print(f"Initializing FaissManager with index directory--")
+        #print(f"Initializing FaissManager with index directory--")
         self.index_dir = Path(index_dir)
         self.index_dir.mkdir(parents=True, exist_ok=True)
         
         self.model_loader = model_loader or ModelLoader()
         self.embed = self.model_loader.load_embeddings()
-
+        
         self.meta_path = self.index_dir / "metadata.json"
         self._meta:Dict[str,Any] = {"rows":{}}
         if self.meta_path.exists():

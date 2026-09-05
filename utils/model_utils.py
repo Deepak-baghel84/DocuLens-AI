@@ -3,7 +3,8 @@ import sys
 import json
 from dotenv import load_dotenv
 from utils.config_util import load_config
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI  #Resource Exhausted
+# from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from logger import GLOBAL_LOGGER as log
 from exception.custom_exception import CustomException
@@ -16,7 +17,7 @@ class ApiKeyManager:
         self.api_keys = {}
         raw = os.getenv("API_KEYS")
 
-        if raw:
+        if raw:                             #  Api keys store as a json file in production 
             try:
                 parsed = json.loads(raw)
                 if not isinstance(parsed, dict):
@@ -71,10 +72,26 @@ class ModelLoader:
         Load and return embedding model from Google Generative AI.
         """
         try:
+            
+        #     model_name = "BAAI/bge-base-en-v1.5"
+        #     embedding_model = HuggingFaceEmbeddings(
+        #     model_name=model_name,
+        #     encode_kwargs={
+        #         "normalize_embeddings": True
+        #     }
+        # )
+            
+
             model_name = self.config["embedding_model"]["model"]
             log.info("Loading embedding model", model=model_name)
             return GoogleGenerativeAIEmbeddings(model=model_name,
                                                 google_api_key=self.api_key_mgr.get("GOOGLE_API_KEY")) #type: ignore
+        
+
+
+            # return embedding_model
+            
+            
         except Exception as e:
             log.error("Error loading embedding model", error=str(e))
             raise CustomException("Failed to load embedding model", sys)

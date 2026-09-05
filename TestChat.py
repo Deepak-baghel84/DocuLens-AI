@@ -8,7 +8,7 @@ from src.document_ingestion.data_ingestion import ChatIngestor
 
 def test_doc_chat():
     try:
-        file_paths = ["Data//Resume.pdf","Data//sample.pdf","Data//Deepak_Baghel_Resume.pdf"]
+        file_paths = ["Data//Deepak_Baghel_FlowCV_Resume_2026-08-08.pdf","Data//source2.pdf"]
        
         ingestor = ChatIngestor(temp_base="Data//multidoc_archive", faiss_base = "faiss_index",use_session_dirs = True,session_id= None)
         uploaded_files = []
