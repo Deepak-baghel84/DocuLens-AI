@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "dataset_name": "tcs_sql_interview_evaluation",
+    "source_document": "1784394231994.pdf",
+    "description": "Local RAG evaluation dataset created from the SQL interview questions and answers in the provided PDF.",
+    "num_test_cases": 15
+  },
+  "test_cases": [
+    {
+      "id": "sql_eval_001",
+      "input": "What is SQL and why is it essential?",
+      "expected_output": "SQL stands for Structured Query Language. It is used to manage and manipulate relational databases, allowing users to create, retrieve, update, and delete data. Its standardized way of interacting with databases makes it essential for storing, retrieving, and manipulating data.",
+      "expected_context": [
+        "SQL (Structured Query Language) is used for managing and manipulating relational databases. It allows users to create, retrieve, update, and delete data from a relational database. It provides a standardized way to interact with databases, making it easier to store, retrieve, and manipulate data."
+      ],
+      "difficulty": "easy",
+      "source_page": 2
+    },
+    {
+      "id": "sql_eval_002",
+      "input": "What is the difference between SQL and NoSQL databases?",
+      "expected_output": "SQL databases are relational databases that use structured schemas and tables to store data and are suitable for complex relationships and transactions. NoSQL databases are non-relational, use flexible schemas such as JSON or XML, and are suitable for applications that require scalability and handling of unstructured or semi-structured data.",
+      "expected_context": [
+        "SQL databases are relational databases that use structured schemas and tables to store data.",
+        "NoSQL databases are non-relational and often use flexible schemas like JSON or XML. They are ideal for applications that require scalability and handling unstructured or semi-structured data."
+      ],
+      "difficulty": "medium",
+      "source_page": 2
+    },
+    {
+      "id": "sql_eval_003",
+      "input": "What are the ACID properties in SQL databases?",
+      "expected_output": "ACID stands for Atomicity, Consistency, Isolation, and Durability. Atomicity means a transaction either completes entirely or not at all. Consistency ensures the database moves from one valid state to another. Isolation ensures concurrent transactions do not interfere with each other. Durability ensures committed changes are permanent and survive system failures.",
+      "expected_context": [
+        "ACID stands for Atomicity, Consistency, Isolation, and Durability.",
+        "Atomicity: Either all changes are applied, or none.",
+        "Consistency: Guarantees that a transaction takes the database from one consistent state to another.",
+        "Isolation: Ensures that multiple transactions can run concurrently without interfering with each other.",
+        "Durability: Ensures that once a transaction is committed, its changes are permanent and survive system failures."
+      ],
+      "difficulty": "medium",
+      "source_page": 2
+    },
+    {
+      "id": "sql_eval_004",
+      "input": "What is a primary key and why is it important?",
+      "expected_output": "A primary key is a unique identifier for each record in a table. It ensures that each row can be uniquely identified, prevents duplicate or NULL values, facilitates efficient data retrieval and JOIN operations, and can be referenced by foreign keys to establish relationships between tables.",
+      "expected_context": [
+        "A primary key is a unique identifier for each record in a table. It ensures that each row in the table is uniquely identifiable.",
+        "Primary keys prevent duplicate or null values, facilitate efficient data retrieval and JOIN operations, and serve as a reference for foreign keys in related tables."
+      ],
+      "difficulty": "easy",
+      "source_page": 3
+    },
+    {
+      "id": "sql_eval_005",
+      "input": "What is the difference between INNER JOIN, LEFT JOIN, and RIGHT JOIN?",
+      "expected_output": "INNER JOIN returns only rows with matching values in both tables. LEFT JOIN returns all rows from the left table and matching rows from the right table, with NULL values for unmatched right-side rows. RIGHT JOIN returns all rows from the right table and matching rows from the left table, with NULL values for unmatched left-side rows.",
+      "expected_context": [
+        "INNER JOIN returns only the rows with matching values in both tables.",
+        "LEFT JOIN returns all rows from the left table and the matched rows from the right table. Unmatched rows on the left will have NULL values.",
+        "RIGHT JOIN is similar to LEFT JOIN but returns all rows from the right table and matched rows from the left table."
+      ],
+      "difficulty": "medium",
+      "source_page": 4
+    },
+    {
+      "id": "sql_eval_006",
+      "input": "What is a subquery and how is it different from a JOIN?",
+      "expected_output": "A subquery is a query nested inside another query and can be used to filter data or retrieve aggregated data. A JOIN combines data from two or more tables into a single result set based on a relationship or condition.",
+      "expected_context": [
+        "A subquery is a query nested inside another query. It can be used to filter data or retrieve aggregated data.",
+        "A JOIN combines data from two or more tables into a single result set."
+      ],
+      "difficulty": "medium",
+      "source_page": 4
+    },
+    {
+      "id": "sql_eval_007",
+      "input": "How does SQL injection work and how can it be prevented?",
+      "expected_output": "SQL injection is a cyberattack in which malicious SQL code is inserted through an input field, potentially causing unauthorized access or data manipulation. It can be prevented by using parameterized queries or prepared statements, validating and sanitizing input, avoiding dynamic SQL built from concatenated user input, and applying the principle of least privilege to database accounts.",
+      "expected_context": [
+        "SQL injection is a type of cyberattack where malicious SQL code is inserted into an input field, often resulting in unauthorized access or data manipulation.",
+        "Use parameterized queries or prepared statements.",
+        "Implement input validation and sanitization.",
+        "Avoid dynamic SQL queries with concatenated user input.",
+        "Apply the principle of least privilege to database accounts."
+      ],
+      "difficulty": "hard",
+      "source_page": 6
+    },
+    {
+      "id": "sql_eval_008",
+      "input": "What is the difference between GROUP BY and HAVING in SQL?",
+      "expected_output": "GROUP BY groups rows that have the same values in specified columns, often for aggregate operations such as COUNT(). HAVING filters groups based on conditions applied to aggregated values. WHERE filters individual rows before grouping, while HAVING filters groups after GROUP BY.",
+      "expected_context": [
+        "GROUP BY is used to group rows that have the same values in specified columns, usually for aggregate purposes.",
+        "HAVING is used to filter the results of a GROUP BY query based on a condition applied to the aggregated values.",
+        "HAVING is used after GROUP BY to filter groups, while WHERE filters individual rows."
+      ],
+      "difficulty": "medium",
+      "source_page": 6
+    },
+    {
+      "id": "sql_eval_009",
+      "input": "What is an index and why is it important in a database?",
+      "expected_output": "An index is a database structure that improves the speed of data retrieval operations. It helps the database quickly locate rows matching a query's WHERE clause and is especially important for improving query performance on large datasets.",
+      "expected_context": [
+        "An index is a database structure that improves the speed of data retrieval operations on a table.",
+        "It works like an index of a book, allowing the database system to quickly locate the rows that match a query's WHERE clause.",
+        "Indexes are crucial for improving query performance, especially on large datasets."
+      ],
+      "difficulty": "easy",
+      "source_page": 7
+    },
+    {
+      "id": "sql_eval_010",
+      "input": "What is the difference between a clustered index and a non-clustered index?",
+      "expected_output": "A clustered index determines the physical order of data rows in a table, and each table can have only one because it affects the table's storage order. A non-clustered index does not affect the physical order of the data, can be created on multiple columns, and a table can have multiple non-clustered indexes.",
+      "expected_context": [
+        "A clustered index determines the physical order of data rows in a table. Each table can have only one clustered index, as it directly affects the table's storage order.",
+        "A non-clustered index does not affect the physical order of data and can be created on multiple columns. Tables can have multiple non-clustered indexes."
+      ],
+      "difficulty": "medium",
+      "source_page": 8
+    },
+    {
+      "id": "sql_eval_011",
+      "input": "What is the difference between a UNIQUE constraint and a PRIMARY KEY constraint?",
+      "expected_output": "Both UNIQUE and PRIMARY KEY constraints enforce uniqueness. A PRIMARY KEY uniquely identifies each row and does not allow NULL values. A UNIQUE constraint enforces uniqueness but allows NULL values in the constrained column or columns.",
+      "expected_context": [
+        "Both unique constraints and primary key constraints enforce uniqueness in columns, but there are key differences.",
+        "A primary key constraint uniquely identifies each row in a table and does not allow NULL values.",
+        "A unique constraint enforces uniqueness but allows for NULL values in the constrained columns."
+      ],
+      "difficulty": "easy",
+      "source_page": 10
+    },
+    {
+      "id": "sql_eval_012",
+      "input": "How do you handle NULL values in SQL?",
+      "expected_output": "NULL represents the absence of a value. You can handle NULL values using IS NULL and IS NOT NULL to check for them, COALESCE() or ISNULL() to replace them with default values, and constraints to ensure columns that should not contain NULL values are properly defined.",
+      "expected_context": [
+        "NULL represents the absence of a value in SQL.",
+        "Use the IS NULL and IS NOT NULL operators to check for NULL values.",
+        "Use the COALESCE() or ISNULL() function to replace NULL with a default value.",
+        "Ensure that columns that should not contain NULL values are properly defined with constraints."
+      ],
+      "difficulty": "medium",
+      "source_page": 10
+    },
+    {
+      "id": "sql_eval_013",
+      "input": "What is the purpose of the SQL CASE statement?",
+      "expected_output": "The SQL CASE statement is used for conditional logic in queries. It can return different values or perform different actions based on specified conditions and is commonly used in SELECT, WHERE, and other clauses to customize query results.",
+      "expected_context": [
+        "The SQL CASE statement is used for conditional logic in queries.",
+        "It allows you to return different values or perform different actions based on specified conditions.",
+        "It can be used in SELECT, WHERE, and other clauses to customize query results."
+      ],
+      "difficulty": "easy",
+      "source_page": 11
+    },
+    {
+      "id": "sql_eval_014",
+      "input": "What is the difference between CHAR and VARCHAR data types?",
+      "expected_output": "Both CHAR and VARCHAR store character strings. CHAR has a fixed length and pads values with spaces to the specified length. VARCHAR has a variable length and uses only the space needed for the actual value, which can save storage space.",
+      "expected_context": [
+        "CHAR and VARCHAR are both used to store character strings, but they differ in storage and behavior.",
+        "CHAR has a fixed length, and it pads values with spaces to the specified length.",
+        "VARCHAR has a variable length and only uses the space needed for the actual value, saving storage space."
+      ],
+      "difficulty": "easy",
+      "source_page": 12
+    },
+    {
+      "id": "sql_eval_015",
+      "input": "How can you prevent and handle deadlocks in a database?",
+      "expected_output": "Deadlocks occur when two or more transactions block each other by holding locks on resources needed by the others. They can be prevented or handled by using appropriate isolation levels, designing transactions to access resources in a consistent order, implementing deadlock detection and resolution, and adjusting database timeouts and retry logic in application code.",
+      "expected_context": [
+        "Deadlocks occur when two or more transactions block each other by holding locks on resources needed by others.",
+        "Use appropriate isolation levels.",
+        "Design transactions to access resources in a consistent order.",
+        "Implement deadlock detection and resolution mechanisms.",
+        "Adjust database timeouts and retry logic in application code."
+      ],
+      "difficulty": "hard",
+      "source_page": 14
+    }
+  ]
+}
