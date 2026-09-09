@@ -141,32 +141,99 @@ class ConversationalRAG:
         log.info(f"Retrieved {len(docs)} documents")
         return docs
 
+
+
+    def invoke_with_context(self,question: str,chat_history=None):
+        """
+        Retrieve documents once and return both
+        the generated answer and retrieved documents.
+        """
+        log.info("Invoking with context starting")
+        if chat_history is None:
+            chat_history = []
+
+    # ------------------------------------
+    # 1. Retrieve documents ONCE
+    # ------------------------------------
+
+        documents = self.retrieval_chain.invoke(
+        {
+            "user_input": question,
+            "chat_history": chat_history
+        }
+    )
+        log.info(f"Retrieved {len(documents)} documents for the question: {question}")
+    # ------------------------------------
+    # 2. Generate answer using SAME docs
+    # ------------------------------------
+
+        answer = self.answer_chain.invoke(
+        {
+            "documents": documents,
+            "user_input": question,
+            "chat_history": chat_history
+        }
+    )
+        log.info(f"Generated answer for the question")
+        return {
+        "answer": answer,
+        "documents": documents
+    }
+
+
     def _build_lcel_chain(self):
-        try:
-            # 1) Rewrite user question with chat history context
-            if self.retriever is None:
-                raise CustomException("No retriever set before building chain", sys)
-            self.question_rewritter = (
-                {"user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
-                | self.rewriter_prompt
-                | self.llm
-                | StrOutputParser()
-                | self._log_rewritten
-            )
+        if self.retriever is None:
+            raise CustomException("No retriever set before building chain",sys)
+
+    # ------------------------------------------
+    # 1. Retrieval chain
+    # ------------------------------------------
+        
+        self.retrieval_chain = (self.question_rewriter| self.retriever| self._log_docs)
+        log.info("Retrieval chain successfully built")
+    # ------------------------------------------
+    # 2. Answer generation chain
+    # ------------------------------------------
+        
+        self.answer_chain = (
+        {
+            "context": lambda x: self._format_doc(x["documents"]),
+            "user_input": itemgetter("user_input"),
+            "chat_history": itemgetter("chat_history"),
+        }
+        | self.qa_prompt
+        | self.llm
+        | StrOutputParser()
+    )
+
+        log.info("LCEL chains successfully built")
+
+    # def _build_lcel_chain(self):     #changed because of evaluation enhancement
+    #     try:
+    #         # 1) Rewrite user question with chat history context
+    #         if self.retriever is None:
+    #             raise CustomException("No retriever set before building chain", sys)
+    #         self.question_rewritter = (
+    #             {"user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
+    #             | self.rewriter_prompt
+    #             | self.llm
+    #             | StrOutputParser()
+    #             | self._log_rewritten
+    #         )
             
-            retrieve_docs = self.question_rewritter | self.retriever | self._log_docs | self._format_doc
+    #         retrieve_docs = self.question_rewritter | self.retriever | self._log_docs | self._format_doc  # returns most relavant chunks from faiss index 
             
-            # 2) Main chain that combines the rewritten question, retrieved documents, and chat history
-            self.main_chain = (
-                {"context": retrieve_docs, "user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
-                | self.qa_prompt
-                | self.llm
-                | StrOutputParser()
-            )
-            log.info("LCEL chain successfully built")
-        except Exception as e:
-            log.error(f"Error building LCEL chain: {e}")
-            raise CustomException("Error building LCEL chain", sys)
+    #         # 2) Main chain that combines the rewritten question, retrieved documents, and chat history
+    #         self.main_chain = (
+    #             {"context": retrieve_docs, "user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
+    #             | self.qa_prompt
+    #             | self.llm
+    #             | StrOutputParser()
+    #         )
+    #         log.info("LCEL chain successfully built")
+    #     except Exception as e:
+    #         log.error(f"Error building LCEL chain: {e}")
+    #         raise CustomException("Error building LCEL chain", sys)
 
 
     def _format_doc(self,docs):
@@ -185,6 +252,25 @@ class ConversationalRAG:
             log.error(f"Error formatting documents: {e}")
             raise CustomException(f"Error formatting documents: {e}", sys)
         
+
+
+
+
+    
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
 
 
 

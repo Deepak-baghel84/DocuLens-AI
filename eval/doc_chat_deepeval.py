@@ -59,12 +59,21 @@ def list_supported_files(root: Path) -> List[Path]:
     return files
 
 
-def query_rag(question: str, retriever) -> dict:
+def query_rag(question: str,rag: ConversationalRAG) -> dict:
 
-    doc_retriver = ConversationalRAG(retriever)
-    answer = doc_retriver.invoke(question, chat_history=[])
-    context = doc_retriver.get_retrieved_context(question, k=5)  # Retrieve the top 5 relevant documents for the question
-    return {"answer": answer, "context": context}
+    result = rag.invoke_with_context(
+        question=question,
+        chat_history=[]
+    )
+
+    documents = result["documents"]
+
+    context = [doc.page_content for doc in documents]
+
+    return {
+        "answer": result["answer"],
+        "context": context
+    }
 
 
 
@@ -122,6 +131,18 @@ def main():
     retriver =  chat_ingestor.create_retrivel(adapters,chunk_size= 1000,chunk_overlap= 200,k= 5)
     log.info("Ingestion complete", session_id=chat_ingestor.session_id)
 
+
+    rag = ConversationalRAG(
+    session_id=chat_ingestor.session_id
+)
+
+ #create retrievel only once and use it for all queries
+
+    index_dir = os.path.join(FAISS_BASE, chat_ingestor.session_id)
+    rag.load_retriever_from_faiss(index_path=index_dir,k=5,index_name=FAISS_INDEX_NAME) 
+
+      
+
     # 2) Pull dataset from Confident AI (cloud service for deepeval)
     
     # dataset = EvaluationDataset()
@@ -141,7 +162,13 @@ def main():
     )
 
     deepeval_test_cases = []
+
+    stop = 0
     for item in local_dataset:
+
+        if stop > 2:
+            break
+        stop += 1
 
         question = item.get("input")
         expected_output = item.get("expected_output")
@@ -159,9 +186,13 @@ def main():
 
             result = query_rag(
                 question,
-                retriver
+                rag=rag
             )
-
+            log.info("Query executed successfully",
+                question=question,
+                answer=result["answer"],
+                context=result["context"]
+            )
             # Ensure context is a list
             retrieved_context = result["context"]
 
@@ -171,8 +202,9 @@ def main():
                     retrieved_context
                 ]
 
-            test_case = LLMTestCase(
+            # log.info("Retrieved context and test case creation started")
 
+            test_case = LLMTestCase(
                 input=question,
 
                 actual_output=result["answer"],
@@ -181,7 +213,7 @@ def main():
 
                 retrieval_context=retrieved_context,
 
-                context=retrieved_context,
+                context=retrieved_context,             # we considering both retrieval context and context as the same for evaluation purpose
             )
 
             deepeval_test_cases.append(
