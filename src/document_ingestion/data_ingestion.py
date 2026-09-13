@@ -148,6 +148,18 @@ class ChatIngestor():
             if not docs or docs == []:
                 log.info("No valid text extracted from documents")
                 raise ValueError("No valid text extracted")
+
+            # print("\n" + "=" * 50)
+            # print("RAW DOCUMENTS AFTER load_documents()")
+            # print("=" * 50)
+
+            # for i, doc in enumerate(docs[:5]):
+            #     print(f"\n--- RAW DOC {i + 1} ---")
+            #     print("PAGE CONTENT:")
+            #     print(repr(doc.page_content[:500]))
+            #     print("\nMETADATA:")
+            #     print(doc.metadata)
+            
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             chunks = text_splitter.split_documents(docs)     #split the document into chunks not the text 
             log.info(f"Documents split into {len(chunks)} chunks ")
@@ -164,7 +176,14 @@ class ChatIngestor():
 
             added = fm.add_documents(chunks)
             log.info("FAISS index updated", added=added, index=str(self.faiss_dir))
-            
+            # print(f"FAISS index updated with {added} new chunks.")
+            # print("="*40)
+            # print(f"FAISS index directory: {self.faiss_dir}")
+            # print("texts and metadatas added to index:")
+            # for i, (t, m) in enumerate(zip(text, md)):
+            #     print(f"  {i+1}. Text: {t[:100]}... | Metadata: {m}")
+
+           # print("="*40)
             return vs.as_retriever(search_type="similarity", search_kwargs={"k": k})
             
         except Exception as e:

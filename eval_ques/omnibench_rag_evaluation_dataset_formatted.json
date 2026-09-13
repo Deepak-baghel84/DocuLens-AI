@@ -1,0 +1,230 @@
+{
+  "metadata": {
+    "dataset_name": "omnibench_rag_evaluation",
+    "source_document": "2508.05650v1.pdf",
+    "description": "Custom RAG evaluation dataset created from the OmniBench-RAG paper.",
+    "num_test_cases": 20
+  },
+  "test_cases": [
+    {
+      "id": "omnibench_eval_001",
+      "input": "What is OmniBench-RAG?",
+      "expected_output": "OmniBench-RAG is an automated platform for multi-domain evaluation of Retrieval-Augmented Generation (RAG) systems. It evaluates RAG across accuracy and efficiency dimensions and supports reproducible comparisons across models and tasks.",
+      "expected_context": [
+        "OmniBench-RAG is an automated platform for multi-domain evaluation of RAG systems.",
+        "It quantifies performance across accuracy and efficiency dimensions."
+      ],
+      "difficulty": "easy",
+      "source_page": 1
+    },
+    {
+      "id": "omnibench_eval_002",
+      "input": "What are the two standardized metrics introduced by OmniBench-RAG?",
+      "expected_output": "The two standardized metrics are Improvements, which measures accuracy gains, and Transformation, which measures normalized efficiency differences between pre-RAG and post-RAG models.",
+      "expected_context": [
+        "Improvements measures absolute accuracy gains.",
+        "Transformation captures normalized efficiency trade-offs between pre-RAG and post-RAG models."
+      ],
+      "difficulty": "easy",
+      "source_page": 1
+    },
+    {
+      "id": "omnibench_eval_003",
+      "input": "How many knowledge fields does OmniBench-RAG evaluate?",
+      "expected_output": "OmniBench-RAG evaluates nine knowledge fields: Geography, History, Health, Mathematics, Nature, People, Society, Technology, and Culture.",
+      "expected_context": [
+        "The platform reports evaluation across nine knowledge fields.",
+        "The fields include Geography, History, Health, Mathematics, Nature, People, Society, Technology, and Culture."
+      ],
+      "difficulty": "easy",
+      "source_page": 4
+    },
+    {
+      "id": "omnibench_eval_004",
+      "input": "What are the main limitations of existing RAG evaluation approaches identified by the paper?",
+      "expected_output": "The paper identifies three major limitations: lack of automated multi-domain evaluation, reliance on static datasets and coarse-grained metrics, and failure to capture computational trade-offs such as resource utilization and efficiency.",
+      "expected_context": [
+        "Existing approaches lack automated multi-domain evaluation.",
+        "They use static datasets and coarse-grained metrics.",
+        "They fail to capture computational trade-offs."
+      ],
+      "difficulty": "medium",
+      "source_page": 1
+    },
+    {
+      "id": "omnibench_eval_005",
+      "input": "Why can RAG effectiveness vary across different models and domains?",
+      "expected_output": "RAG effectiveness depends on both model scale and knowledge domain. Smaller models can receive substantial accuracy gains from RAG, while state-of-the-art models with extended context windows may benefit less. Domain characteristics also affect how well retrieved information aligns with the task.",
+      "expected_context": [
+        "The impact of RAG varies with model scale.",
+        "RAG effectiveness also depends heavily on the knowledge domain."
+      ],
+      "difficulty": "medium",
+      "source_page": 1
+    },
+    {
+      "id": "omnibench_eval_006",
+      "input": "What does the automated parallel evaluation architecture of OmniBench-RAG do?",
+      "expected_output": "It runs a Basic Evaluation track for the vanilla model and a RAG Evaluation track for the retrieval-enhanced model using identical test datasets, while measuring accuracy, latency, GPU utilization, and memory consumption.",
+      "expected_context": [
+        "The architecture executes Basic Evaluation and RAG Evaluation tracks side by side.",
+        "Both tracks use identical test datasets and capture accuracy, latency, GPU utilization, and memory consumption."
+      ],
+      "difficulty": "medium",
+      "source_page": 2
+    },
+    {
+      "id": "omnibench_eval_007",
+      "input": "What happens during the Knowledge Base Construction stage?",
+      "expected_output": "Domain-specific documents are parsed, cleaned, partitioned into smaller semantically coherent chunks, converted into vectors using an embedding model, and indexed in FAISS to create a searchable knowledge base.",
+      "expected_context": [
+        "Documents are parsed, cleaned, and partitioned into semantically coherent chunks.",
+        "Chunks are encoded using an embedding model and indexed in FAISS."
+      ],
+      "difficulty": "medium",
+      "source_page": 2
+    },
+    {
+      "id": "omnibench_eval_008",
+      "input": "What are the two methods offered by OmniBench-RAG for preparing the test dataset?",
+      "expected_output": "The two methods are loading an existing question-answering dataset in a standardized JSON format and dynamically generating novel test cases using factual triple extraction, logical derivation, and question-answer generation.",
+      "expected_context": [
+        "An existing QA dataset can be loaded in standardized JSON format.",
+        "The platform also provides dynamic dataset generation."
+      ],
+      "difficulty": "easy",
+      "source_page": 2
+    },
+    {
+      "id": "omnibench_eval_009",
+      "input": "What are the three steps in OmniBench-RAG's dynamic dataset generation process?",
+      "expected_output": "The three steps are factual triple extraction, logical derivation using inference rules, and question-answer generation from the derived facts using predefined templates.",
+      "expected_context": [
+        "The engine extracts factual triples.",
+        "It applies logical inference rules.",
+        "It converts derived facts into QA pairs using predefined templates."
+      ],
+      "difficulty": "medium",
+      "source_page": 2
+    },
+    {
+      "id": "omnibench_eval_010",
+      "input": "How is the Basic Evaluation track different from the RAG Evaluation track?",
+      "expected_output": "In Basic Evaluation, the model answers using only its internal pre-trained knowledge. In RAG Evaluation, the same model receives retrieved knowledge chunks from the FAISS index as additional context before generating its answer.",
+      "expected_context": [
+        "Basic Evaluation operates without retrieval.",
+        "RAG Evaluation retrieves Top-K relevant chunks from FAISS and augments the prompt with them."
+      ],
+      "difficulty": "medium",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_011",
+      "input": "What is the Improvements metric and how is it calculated?",
+      "expected_output": "Improvements measures the absolute accuracy gain provided by RAG. It is calculated as Improvements = SRAG − Sbase, where SRAG is the RAG accuracy score and Sbase is the baseline accuracy score.",
+      "expected_context": [
+        "Improvements measures absolute accuracy improvement.",
+        "The formula is Improvements = SRAG − Sbase."
+      ],
+      "difficulty": "medium",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_012",
+      "input": "What three efficiency dimensions are used by the Transformation metric?",
+      "expected_output": "Transformation uses response time, GPU memory utilization, and system memory consumption.",
+      "expected_context": [
+        "Transformation aggregates response time, GPU memory utilization, and system memory consumption."
+      ],
+      "difficulty": "easy",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_013",
+      "input": "What default weights does OmniBench-RAG use for the Transformation metric?",
+      "expected_output": "The default weights are 0.4 for response time, 0.3 for GPU utilization, and 0.3 for system memory utilization.",
+      "expected_context": [
+        "The default weights are wtime = 0.4, wgpu = 0.3, and wmem = 0.3."
+      ],
+      "difficulty": "easy",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_014",
+      "input": "What does a Transformation score greater than 1.0 indicate?",
+      "expected_output": "A Transformation score greater than 1.0 indicates that the RAG-enhanced model achieves better efficiency, meaning lower resource consumption, compared with the baseline.",
+      "expected_context": [
+        "A Transformation score greater than 1.0 indicates better efficiency for the RAG-enhanced model.",
+        "It indicates lower resource consumption compared with the baseline."
+      ],
+      "difficulty": "easy",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_015",
+      "input": "Which knowledge domain showed the largest positive accuracy improvement in the reported Qwen evaluation?",
+      "expected_output": "Culture showed the largest positive accuracy improvement, increasing from 51.1% baseline accuracy to 68.2% with RAG, an improvement of 17.1%.",
+      "expected_context": [
+        "Culture had 51.1% baseline accuracy and 68.2% RAG accuracy.",
+        "Its reported improvement was +17.1%."
+      ],
+      "difficulty": "medium",
+      "source_page": 4
+    },
+    {
+      "id": "omnibench_eval_016",
+      "input": "Which knowledge domain showed the largest negative accuracy change with RAG?",
+      "expected_output": "Mathematics showed the largest negative change, decreasing from 76.9% baseline accuracy to 51.3% with RAG, a decline of 25.6%.",
+      "expected_context": [
+        "Mathematics had 76.9% baseline accuracy and 51.3% RAG accuracy.",
+        "Its reported improvement was -25.6%."
+      ],
+      "difficulty": "medium",
+      "source_page": 4
+    },
+    {
+      "id": "omnibench_eval_017",
+      "input": "What were the baseline and RAG accuracy scores for the Technology domain?",
+      "expected_output": "For Technology, the baseline accuracy was 57.1% and the RAG accuracy was 67.9%, giving an improvement of 10.7%.",
+      "expected_context": [
+        "Technology had 57.1% baseline accuracy.",
+        "Technology had 67.9% RAG accuracy and +10.7% improvement."
+      ],
+      "difficulty": "easy",
+      "source_page": 4
+    },
+    {
+      "id": "omnibench_eval_018",
+      "input": "Why did the paper suggest that health and mathematics experienced declines with RAG?",
+      "expected_output": "The paper suggests that the declines were related to misalignment between retrieval materials and the structured reasoning demands of these domains. Rule-based domains require precise symbolic retrieval, while generic chunking can fail to preserve logical dependencies and can mix relevant and irrelevant tokens.",
+      "expected_context": [
+        "Health and mathematics showed declines in RAG performance.",
+        "The paper links this to domain-structured reasoning and limitations of generic chunking."
+      ],
+      "difficulty": "hard",
+      "source_page": 3
+    },
+    {
+      "id": "omnibench_eval_019",
+      "input": "What does the paper say about the efficiency of RAG compared with the baseline model?",
+      "expected_output": "The paper reports that RAG generally introduces moderate efficiency overhead, with Transformation values below 1, because of retrieval and context-processing costs. Mathematics was an exception with a Transformation value of 1.1181.",
+      "expected_context": [
+        "RAG generally introduces moderate overhead from retrieval and context processing.",
+        "Most Transformation values are below 1, while Mathematics has 1.1181."
+      ],
+      "difficulty": "medium",
+      "source_page": 4
+    },
+    {
+      "id": "omnibench_eval_020",
+      "input": "What is the purpose of the custom document upload feature in OmniBench-RAG?",
+      "expected_output": "The custom document upload feature allows users to experiment with domain-specific materials and conduct personalized RAG evaluation, helping investigate how the choice and quality of source materials affect RAG performance.",
+      "expected_context": [
+        "Custom document upload enables experiments with domain-specific materials.",
+        "It supports personalized investigation of how source materials affect RAG effectiveness."
+      ],
+      "difficulty": "medium",
+      "source_page": 3
+    }
+  ]
+}

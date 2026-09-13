@@ -41,6 +41,7 @@ class ConversationalRAG:
             if self.retriever is not None:
                 self._build_lcel_chain()
             log.info("Document Retriever successfully initialized")
+
             
         except Exception as e:
             log.error("Error in initialization DocumentRetriever")
@@ -76,6 +77,7 @@ class ConversationalRAG:
                 search_type=search_type, search_kwargs=search_kwargs
             )
             self._build_lcel_chain()
+
 
             log.info(
                 "FAISS retriever loaded successfully",
@@ -184,6 +186,14 @@ class ConversationalRAG:
     def _build_lcel_chain(self):
         if self.retriever is None:
             raise CustomException("No retriever set before building chain",sys)
+
+        self.question_rewriter = (
+                {"user_input": itemgetter("user_input"), "chat_history": itemgetter("chat_history")}
+                | self.rewriter_prompt
+                | self.llm
+                | StrOutputParser()
+                | self._log_rewritten
+            )
 
     # ------------------------------------------
     # 1. Retrieval chain

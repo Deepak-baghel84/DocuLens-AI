@@ -4,8 +4,10 @@ from pathlib import Path
 from typing import List
 import json
 from dotenv import load_dotenv
+from groq_eval_model import GroqEvalModel
+import time
 
-from deepeval.dataset import EvaluationDataset
+#from deepeval.dataset import EvaluationDataset
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import (
     AnswerRelevancyMetric,
@@ -21,9 +23,16 @@ from logger import GLOBAL_LOGGER as log
 
 from src.document_ingestion.data_ingestion import ChatIngestor
 from src.document_chat.retrieval import ConversationalRAG
+from collections import defaultdict
+from groq_eval_model import GroqEvalModel
 
 
-        # Directory containing documents to ingest and index
+eval_model = GroqEvalModel(
+    model_name="openai/gpt-oss-120b"
+)
+
+
+        # Directory containing documents to ingest and index(raw data for evaluation)
 DEEPEVAL_INPUT_DIR = os.getenv("DEEPEVAL_INPUT_DIR","data_deep_eval")
 
              # Document versioning path
@@ -33,7 +42,18 @@ FAISS_BASE = os.getenv("FAISS_BASE", "faiss_index")   # faiss index path
 FAISS_INDEX_NAME = os.getenv("FAISS_INDEX_NAME", "index")
 
        # Local JSON evaluation dataset
-DEEPEVAL_DATASET_PATH = os.getenv("DEEPEVAL_DATASET_PATH", "eval_ques/tcs_sql_interview_evaluation_dataset-1.json")  # dataset path, questions and expected answers for evaluation
+DEEPEVAL_DATASET_PATH = os.getenv("DEEPEVAL_DATASET_PATH", "eval_ques/omnibench_rag_evaluation_dataset_formatted.json")  # dataset path, questions and expected answers for evaluation
+
+
+
+
+
+
+
+
+
+
+
 
 
 class LocalFileAdapter:
@@ -59,6 +79,30 @@ def list_supported_files(root: Path) -> List[Path]:
     return files
 
 
+
+def _log_docs(docs):
+
+    print("\n" + "=" * 80)
+    print(f"RETRIEVED {len(docs)} DOCUMENTS")
+    print("=" * 80)
+
+    for i, doc in enumerate(docs, start=1):
+
+        print(f"\n--- DOCUMENT {i} ---")
+
+        print("METADATA:")
+        print(doc.metadata)
+
+        print("\nCONTENT:")
+        print(doc.page_content[:1000])
+
+        print("\n" + "-" * 80)
+
+    return 
+
+
+
+
 def query_rag(question: str,rag: ConversationalRAG) -> dict:
 
     result = rag.invoke_with_context(
@@ -69,6 +113,10 @@ def query_rag(question: str,rag: ConversationalRAG) -> dict:
     documents = result["documents"]
 
     context = [doc.page_content for doc in documents]
+
+    print(f"RETRIEVED {len(documents)} DOCUMENTS")
+
+   # _log_docs(documents)  # Log the retrieved documents
 
     return {
         "answer": result["answer"],
@@ -119,18 +167,44 @@ def main():
     # 1) Build or load FAISS index from the specified directory
     data_dir = Path(DEEPEVAL_INPUT_DIR)          
     assert data_dir.exists(), f"Input dir not found: {data_dir}"
-    paths = list_supported_files(data_dir)  # List all supported files in the input directory
+    paths = list_supported_files(data_dir)  # List all supported files in the input directory(raw data)
     if not paths:
         log.error("No supported files found in input directory", dir=str(data_dir))
         print("No supported files found in input directory.")
         sys.exit(1)
 
     # Ingest and index
-    chat_ingestor = ChatIngestor(temp_base=UPLOAD_BASE, faiss_base=FAISS_BASE,use_session_dirs = True,session_id= None)
+    chat_ingestor = ChatIngestor(temp_base=UPLOAD_BASE, faiss_base=FAISS_BASE,use_session_dirs = True,session_id= None) #raw dataset
     adapters = [LocalFileAdapter(str(p)) for p in paths]
-    retriver =  chat_ingestor.create_retrivel(adapters,chunk_size= 1000,chunk_overlap= 200,k= 5)
+    retriever =  chat_ingestor.create_retrivel(adapters,chunk_size= 1000,chunk_overlap= 200,k= 5)
     log.info("Ingestion complete", session_id=chat_ingestor.session_id)
 
+    # print("\n" + "=" * 70)
+    # print("RAW INPUT FILES")
+    # print("=" * 70)
+
+    # print(f"Input directory: {data_dir}")
+    # print(f"Total supported files found: {len(paths)}")
+
+    # for i, path in enumerate(paths, start=1):
+    #     print(f"\n{i}. File name : {path.name}")
+    #     print(f"   Full path : {path}")
+    #     print(f"   Extension : {path.suffix}")
+    #     print(f"   Exists    : {path.exists()}")
+    #     print(f"   Size      : {path.stat().st_size / 1024:.2f} KB")
+
+    # print("=" * 70)
+
+   
+
+    # print("\n========== RAW RETRIEVED DOCUMENTS ==========")
+
+    # for i, doc in enumerate(documents, start=1):
+    #     print(f"\n--- DOCUMENT {i} ---")
+    #     print("PAGE CONTENT:")
+    #     print(repr(doc.page_content[:1000]))
+    #     print("\nMETADATA:")
+    #     print(doc.metadata)
 
     rag = ConversationalRAG(
     session_id=chat_ingestor.session_id
@@ -149,7 +223,7 @@ def main():
     # dataset.pull(alias=DATASET_ALIAS)
 
     # -------------------------------------------------
-    # 3) Load local evaluation dataset
+    # 3) Load local evaluation dataset(goldens)
     # -------------------------------------------------
 
     local_dataset = load_local_dataset(
@@ -166,7 +240,7 @@ def main():
     stop = 0
     for item in local_dataset:
 
-        if stop > 2:
+        if stop > 1:
             break
         stop += 1
 
@@ -221,7 +295,7 @@ def main():
             )
 
             log.info(
-                "Test case created",
+                "Test case created successfully",
                 question=question
             )
 
@@ -234,6 +308,7 @@ def main():
             )
 
 
+    time.sleep(70)  # wait for a minute to avoid rate limiting issues with the evaluation model
 
     # -------------------------------------------------
     # 5) Check test cases
@@ -248,19 +323,65 @@ def main():
 
     # 4) Evaluate with all metrics
     metrics = [
-        AnswerRelevancyMetric(),
-        FaithfulnessMetric(),
-        ContextualPrecisionMetric(),
-        ContextualRecallMetric(),
-        ContextualRelevancyMetric(),
-        HallucinationMetric(),
+        AnswerRelevancyMetric(model=eval_model),
+        FaithfulnessMetric(model=eval_model),
+        ContextualPrecisionMetric(model=eval_model),
+        ContextualRecallMetric(model=eval_model),
+        ContextualRelevancyMetric(model=eval_model),
+        HallucinationMetric(model=eval_model),
     ]
 
-    evaluate(
+    evaluation_results =evaluate(
         test_cases=deepeval_test_cases,
         metrics=metrics,
     )
+    log.info("Evaluation completed", total_test_cases=len(evaluation_results.test_results))
+
+
+    
+    for result in evaluation_results.test_results:
+
+
+        print("\n" + "=" * 80)
+
+        print("QUESTION:")
+        print(result.input)
+
+        print("\nRAG ANSWER:")
+        print(result.actual_output)
+
+        print("\nEXPECTED ANSWER:")
+        print(result.expected_output)
+
+        print("\nMETRIC RESULTS:")
+        print("\nMETRIC RESULTS:")
+
+        for metric_data in result.metrics_data:
+            print(f"{metric_data.name}: "f"{metric_data.score}")
+
+        print("=" * 80)
+
+
+    metric_scores = defaultdict(list)
+
+    for test_result in evaluation_results.test_results:
+        for metric in test_result.metrics_data:
+            metric_scores[metric.name].append(metric.score)
+
+
+    print("\n" + "=" * 60)
+    print("FINAL EVALUATION RESULTS")
+    print("=" * 60)
+
+    for metric_name, scores in metric_scores.items():
+        average_score = sum(scores) / len(scores)
+
+        print(f"{metric_name}: {average_score:.4f}")
+
 
 
 if __name__ == "__main__":
     main()
+
+
+
